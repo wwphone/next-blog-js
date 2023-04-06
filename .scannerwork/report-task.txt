@@ -1,0 +1,6 @@
+projectKey=pa-web-v2
+serverUrl=http://localhost:9000
+serverVersion=10.0.0.68432
+dashboardUrl=http://localhost:9000/dashboard?id=pa-web-v2
+ceTaskId=AYdUbT2eB3sSYOMadu-M
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYdUbT2eB3sSYOMadu-M

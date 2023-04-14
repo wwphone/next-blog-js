@@ -28,7 +28,7 @@ jobs:
       run: npm run build
 
     - name: Start SonarQube
-      run: docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
+      run: docker run --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
 
     - name: Wait for SonarQube to start
       run: |

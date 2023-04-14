@@ -13,8 +13,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 19
+
     - name: Build application
-      run: npm install --registry https://registry.npmjs.org && npm run build
+      run: npm install && npm run build
 
     - name: Start SonarQube
       run: docker run -d --name sonarqube -p 9000:9000 sonarqube:latest

@@ -13,13 +13,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Authenticate with NPM
-      env:
-        NPM_TOKEN: "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"
-      run: npm ci
-
     - name: Build application
-      run: npm install && npm run build
+      run: npm install --registry https://registry.npmjs.org && npm run build
 
     - name: Start SonarQube
       run: docker run -d --name sonarqube -p 9000:9000 sonarqube:latest

@@ -13,10 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Authenticate with NPM
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: npm ci
+    - name: Install Dependencies
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    run: |
+      echo "https://registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+      npm ci
 
     - name: Build application
       run: npm install && npm run build

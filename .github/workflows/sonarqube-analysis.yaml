@@ -1,57 +1,50 @@
-name: SonarQube Analysis
+name: SonarQube Scan
 
 on:
   pull_request:
     branches:
       - main
 
+env:
+  SONAR_TOKEN: ${{ secrets.NPM_TOKEN }}
+  SONAR_HOST_URL: http://localhost:9000
+
 jobs:
-  build-and-scan:
+  sonarqube_scan:
     runs-on: ubuntu-latest
-
+    services:
+      sonarqube:
+        image: sonarqube:8.9-community
+        ports:
+          - 9000:9000
+        options: >-
+          --env SONARQUBE_JDBC_USERNAME=sonar
+          --env SONARQUBE_JDBC_PASSWORD=sonar
+          --env SONARQUBE_JDBC_URL=jdbc:postgresql://localhost/sonar
+          --env SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+          --env SONAR_WEB_JAVA_OPTS=-Dsonar.search.javaOpts=-Djava.net.preferIPv4Stack=true
+          --env SONARQUBE_ANALYSIS_MODE=preview
+          --env SONAR_AUTHENTICATOR_OPTS=-Dsonar.auth.jwtBase64Hs256Secret=$(SONAR_TOKEN)
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14.x'
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-    - name: Authenticate with npm
-      run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build the project
-      run: npm run build
-
-    - name: Start SonarQube
-      run: docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
-
-    - name: Wait for SonarQube to start
-      run: |
-        while ! nc -z localhost 9000; do
-          sleep 1
-        done
-
-    - name: Generate project token
-      run: |
-        TOKEN=$(curl -X POST \
-               -u admin:admin \
-               -H 'Content-Type: application/x-www-form-urlencoded' \
-               -d 'name=my_project_token' \
-               'http://localhost:9000/api/user_tokens/generate' | \
-               jq -r '.token')
-
-        echo "SONAR_TOKEN=$TOKEN" >> $GITHUB_ENV
-
-    - name: Run SonarQube analysis
-      run: docker run --network="host" -e SONAR_HOST_URL="http://localhost:9000" -e SONAR_TOKEN=$SONAR_TOKEN sonarsource/sonar-scanner-cli:4.6
-
-    - name: Stop SonarQube
-      run: docker stop sonarqube
-
-    - name: Check SonarQube status
-      run: curl -s -u admin:admin http://localhost:9000/api/system/status | jq .
+      - name: Run SonarQube scanner
+        run: |
+          npm run build
+          sonar-scanner \
+            -Dsonar.projectKey=my-project \
+            -Dsonar.projectName="My Project" \
+            -Dsonar.projectVersion=1.0 \
+            -Dsonar.sources=. \
+            -Dsonar.exclusions=node_modules/**/* \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN

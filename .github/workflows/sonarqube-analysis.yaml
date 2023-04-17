@@ -29,28 +29,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14.x'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
 
-    - name: Authenticate with npm
-      run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+      - name: Authenticate with npm
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Build the project
-      run: npm run build
+      - name: Build the project
+        run: npm run build
 
-    - name: Run SonarQube scanner
-      run: |
-        npm run build
-        sonar-scanner \
-          -Dsonar.projectKey=my-project \
-          -Dsonar.projectName="My Project" \
-          -Dsonar.projectVersion=1.0 \
-          -Dsonar.sources=. \
-          -Dsonar.exclusions=node_modules/**/* \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN
+      - name: Run SonarQube scanner
+        run: |
+          npm run build
+          sonar-scanner \
+            -Dsonar.projectKey=my-project \
+            -Dsonar.projectName="My Project" \
+            -Dsonar.projectVersion=1.0 \
+            -Dsonar.sources=. \
+            -Dsonar.exclusions=node_modules/**/* \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN

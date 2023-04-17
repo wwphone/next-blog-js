@@ -30,11 +30,11 @@ jobs:
     - name: Start SonarQube
       run: docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
 
-    - name: Wait for SonarQube to start
+    - name: Wait for server to start
       run: |
-        while ! nc -z localhost 9000; do
-          sleep 1
-        done
+        curl -o wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+        chmod +x wait-for-it.sh
+        ./wait-for-it.sh localhost:9000 --timeout=60 --strict -- echo "Server is up"
 
     - name: Generate project token
       run: |

@@ -1,45 +1,29 @@
 name: SonarQube Analysis
-
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
 
 jobs:
-  sonarqube-analysis:
+  sonarqube_analysis:
     runs-on: ubuntu-latest
-
-    services:
-      sonarqube:
-        image: sonarqube:community
-        ports:
-          - 9000:9000
-        env:
-          SONARQUBE_JDBC_URL: jdbc:postgresql://localhost/sonar
-          SONARQUBE_JDBC_USERNAME: sonar
-          SONARQUBE_JDBC_PASSWORD: sonar
-
+    container:
+      image: sonarqube:latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2.3.1
+      - name: Install Node.js
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
-
-      - name: Analyze with SonarQube scanner
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: http://sonarqube:9000
+      - name: Setup SonarQube
         run: |
-          docker pull sonarsource/sonar-scanner-cli
-          docker run --rm -e SONAR_HOST_URL -e SONAR_TOKEN -v "$(pwd):/usr/src" sonarsource/sonar-scanner-cli -Dsonar.login="${{ secrets.SONAR_TOKEN }}" -Dsonar.projectKey=your_project_key -Dsonar.projectName=your_project_name -Dsonar.sources=./src -Dsonar.exclusions=**/*.test.js,**/*.spec.js
-
-      - name: Publish analysis report
-        uses: sonarsource/sonarqube-action@v1.3.0
-        with:
-          analysisBaseDir: .
-          failOnQualityGate: true
+          echo "sonar.host.url=http://localhost:9000" >> .env
+          echo "sonar.login=sqp_441b1af0cbcdd1a08a75ff2b8265ae1483a51d96" >> .env
+      - name: Run SonarQube Scanner
+        run: |
+          npm run build
+          sonar-scanner
+        env:
+          SONAR_TOKEN: "sqp_441b1af0cbcdd1a08a75ff2b8265ae1483a51d96"

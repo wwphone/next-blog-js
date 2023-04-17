@@ -29,26 +29,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-
-      - name: Authenticate with npm
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          node-version: '14'
 
       - name: Install dependencies
-        run: npm install
-
-      - name: Install dependencies
-        run: npm install sonar-scanner
-
-      - name: Build the project
-        run: npm run build
+        run: npm ci
 
       - name: Run SonarQube scanner
         run: |
-          npx run build
+          npm run build
           sonar-scanner \
             -Dsonar.projectKey=my-project \
             -Dsonar.projectName="My Project" \

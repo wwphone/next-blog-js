@@ -48,7 +48,7 @@ jobs:
 
       - name: Run SonarQube scanner
         run: |
-          npm run build
+          npx run build
           sonar-scanner \
             -Dsonar.projectKey=my-project \
             -Dsonar.projectName="My Project" \
